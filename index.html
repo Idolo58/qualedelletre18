@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quale delle Tre? - Quiz #18</title>
+    <style>
+        :root {
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.94);
+            --text-color: #0f172a;
+            --text-muted: #475569;
+            --primary-color: #0284c7;
+            --border-color: #cbd5e1;
+            --btn-bg: #f8fafc;
+            --btn-hover: #e0f2fe;
+            --correct-bg: #dcfce7;
+            --correct-border: #16a34a;
+            --correct-text: #14532d;
+            --wrong-bg: #fee2e2;
+            --wrong-border: #dc2626;
+            --wrong-text: #7f1d1d;
+        }
+
+        /* Modalità Luce Rossa per osservazioni notturne */
+        body.red-mode {
+            --bg-color: #050000;
+            --card-bg: rgba(25, 0, 0, 0.92);
+            --text-color: #ff3333;
+            --text-muted: #aa2222;
+            --primary-color: #ff0000;
+            --border-color: #550000;
+            --btn-bg: #280000;
+            --btn-hover: #440000;
+            --correct-bg: #280a0a;
+            --correct-border: #ff4444;
+            --correct-text: #ff8888;
+            --wrong-bg: #3c0000;
+            --wrong-border: #990000;
+            --wrong-text: #ff6666;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(rgba(241, 245, 249, 0.88), rgba(241, 245, 249, 0.88)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 800 800"><radialGradient id="sky" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%230f172a"/><stop offset="100%" stop-color="%23020617"/></radialGradient><rect width="800" height="800" fill="url(%23sky)"/><g fill="%23ffffff" opacity="0.6"><circle cx="120" cy="150" r="1.5"/><circle cx="450" cy="80" r="1"/><circle cx="700" cy="200" r="2"/><circle cx="300" cy="350" r="1"/><circle cx="150" cy="600" r="1.5"/><circle cx="600" cy="550" r="2"/><circle cx="750" cy="700" r="1"/></g></svg>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color); 
+            padding: 30px 20px; 
+            max-width: 680px; 
+            margin: auto; 
+            box-sizing: border-box;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.red-mode {
+            background: #050000;
+        }
+
+        /* Pulsante Luce Rossa fissato in alto a destra, staccato dal contenuto */
+        .top-bar {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+        }
+
+        .red-mode-toggle {
+            background-color: #b91c1c;
+            color: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+
+        .red-mode-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        body.red-mode .red-mode-toggle {
+            background-color: #ff0000;
+            color: #000000;
+        }
+
+        .header-container {
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 { 
+            color: var(--primary-color); 
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .card { 
+            background-color: var(--card-bg); 
+            backdrop-filter: blur(4px);
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .q-title { 
+            font-weight: bold; 
+            margin-bottom: 14px; 
+            color: var(--primary-color); 
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        button.opt-btn { 
+            display: block; 
+            width: 100%; 
+            margin: 10px 0; 
+            padding: 12px 14px; 
+            background-color: var(--btn-bg); 
+            color: var(--text-color); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            text-align: left; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        button.opt-btn:hover:not(:disabled) { 
+            background-color: var(--btn-hover); 
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        button.opt-btn:disabled {
+            cursor: default;
+            opacity: 0.95;
+        }
+
+        .feedback { 
+            margin-top: 14px; 
+            display: none; 
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .feedback.correct { 
+            color: var(--correct-text); 
+            background-color: var(--correct-bg);
+            border: 1px solid var(--correct-border);
+        }
+
+        .feedback.wrong { 
+            color: var(--wrong-text); 
+            background-color: var(--wrong-bg);
+            border: 1px solid var(--wrong-border);
+        }
+
+        .quiz-actions {
+            text-align: center;
+            margin: 35px 0 25px 0;
+        }
+
+        #submit-btn {
+            background-color: #16a34a;
+            color: #ffffff;
+            border: none;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+            transition: all 0.2s;
+        }
+
+        #submit-btn:hover {
+            transform: scale(1.02);
+            background-color: #15803d;
+        }
+
+        body.red-mode #submit-btn {
+            background-color: #880000;
+            color: #ff3333;
+            border: 1px solid #ff0000;
+        }
+
+        .restart-btn {
+            margin-top: 15px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .result-box {
+            display: none;
+            text-align: center;
+            margin-top: 25px;
+            padding: 25px;
+            background-color: var(--card-bg);
+            border: 2px dashed var(--primary-color);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .result-box.visible {
+            display: block;
+        }
+
+        .result-score {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .result-emoji {
+            font-size: 3.8em;
+            margin: 10px 0;
+            line-height: 1;
+        }
+
+        .result-message {
+            font-size: 1.05em;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <button class="red-mode-toggle" onclick="toggleRedMode()">🔴 Luce Rossa</button>
+</div>
+
+<div class="header-container">
+    <h1>✨ Quale delle Tre? - Quiz #18 ✨</h1>
+    <div class="subtitle">Astronomia Cinese, Siriana e Turco-Ottomana</div>
+</div>
+
+<div id="quiz"></div>
+
+<div class="quiz-actions">
+    <button id="submit-btn" onclick="concludiTest()">Verifica Punteggio Finale</button>
+</div>
+
+<div id="result-box" class="result-box">
+    <div id="result-score" class="result-score"></div>
+    <div id="result-emoji" class="result-emoji"></div>
+    <div id="result-message" class="result-message"></div>
+    <button class="restart-btn" onclick="location.reload()">🔄 Ricomincia il Quiz</button>
+</div>
+
+<footer>
+    idolo1958
+</footer>
+
+<script>
+const rawDomande = [
+    { 
+        q: "1. Nella tradizione dell'astronomia cinese antica, quale importante strumento inventato nel II secolo d.C. da Zhang Heng sfruttava la forza idraulica e ingranaggi meccanici per dimostrare in tempo reale i movimenti celesti?", 
+        opts: [
+            "A) La sfera armillare mossa ad acqua", 
+            "B) Il cannocchiale diottrico in bronzo", 
+            "C) Il sestante solare a riflessione ottica"
+        ], 
+        correctText: "A) La sfera armillare mossa ad acqua",
+        exp: "<strong>Spiegazione:</strong> Zhang Heng fu un celebre astronomo e inventore della dinastia Han, famoso anche per aver ideato il primo sismoscopio e una complessa sfera armillare azionata dall'acqua."
+    },
+    { 
+        q: "2. Nell'antica tradizione astronomica e culturale della Siria e della Mesopotamia settentrionale (scuole siriache ed edessene), quale importante centro fu un celebre crocevia per la traduzione e la conservazione dei testi astronomici greci in lingua siriaca e araba?", 
+        opts: [
+            "A) La Scuola di Edessa e di Nisibi", 
+            "B) L'Osservatorio di Maragheh", 
+            "C) L'Accademia di Alessandria d'Egitto"
+        ], 
+        correctText: "A) La Scuola di Edessa e di Nisibi",
+        exp: "<strong>Spiegazione:</strong> Gli studiosi siriaci ebbero un ruolo storico cruciale facendo da ponte tra la scienza classica greco-alessandrina e il successivo fiorire dell'astronomia nel mondo islamico."
+    },
+    { 
+        q: "3. Quale celebre osservatorio astronomico fu fondato nel XVI secolo (nel 1577) a Istanbul dal grande astronomo ottomano Taqi al-Din, dotato di strumenti d'avanguardia paragonabili a quelli di Tycho Brahe?", 
+        opts: [
+            "A) L'Osservatorio di Istanbul di Taqi al-Din", 
+            "B) L'Osservatorio di Samarcanda", 
+            "C) L'Osservatorio di Ulugh Beg"
+        ], 
+        correctText: "A) L'Osservatorio di Istanbul di Taqi al-Din",
+        exp: "<strong>Spiegazione:</strong> L'osservatorio di Istanbul fu uno dei centri scientifici più avanzati del XVI secolo nel mondo islamico, prima della sua demolizione avvenuta nel 1580 per motivi politici e religiosi."
+    },
+    { 
+        q: "4. Nella storia dell'astronomia imperiale cinese, a quale scopo principale gli astronomi di corte compilavano con estremo rigore i registri delle comete, delle novae e delle eclissi solari?", 
+        opts: [
+            "A) Per interpretare i segni celesti come ammonimenti o conferme del Mandato del Cielo sull'Imperatore", 
+            "B) Per calcolare con precisione la longitudine da usare nella navigazione oceanica transatlantica", 
+            "C) Per determinare la data esatta della caduta della dinastia regnante ogni dodici anni"
+        ], 
+        correctText: "A) Per interpretare i segni celesti come ammonimenti o conferme del Mandato del Cielo sull'Imperatore",
+        exp: "<strong>Spiegazione:</strong> Nell'antica Cina i fenomeni celesti insoliti venivano interpretati come messaggi cosmici indirizzati direttamente al Figlio del Cielo per guidarne la condotta morale e politica."
+    },
+    { 
+        q: "5. Parlando di astronomia e della trasmissione dei saperi in area siriaca e mesopotamica, quale opera di Tolomeo fu tradotta e commentata approfonditamente dagli eruditi cristiani siriaci prima di giungere alla corte califfale?", 
+        opts: [
+            "A) La Grande Sintesi Matematica (Almagesto)", 
+            "B) Il trattato sui Numeri Planetari di Aristarco", 
+            "C) Le Tavole Alfonsine"
+        ], 
+        correctText: "A) La Grande Sintesi Matematica (Almagesto)",
+        exp: "<strong>Spiegazione:</strong> L'Almagesto di Claudio Tolomeo fu tradotto dal greco in siriaco e successivamente in arabo, diventando il pilastro della trattatistica astronomica medievale."
+    },
+    { 
+        q: "6. Quale celebre sovrano e astronomo turco-mongolo della dinastia timuride fece costruire nel XV secolo un immenso osservatorio a Samarcanda, realizzando il celebre catalogo stellare *Zij-i Sultani*?", 
+        opts: [
+            "A) Ulugh Beg", 
+            "B) Solimano il Magnifico", 
+            "C) Tamerlano"
+        ], 
+        correctText: "A) Ulugh Beg",
+        exp: "<strong>Spiegazione:</strong> Ulugh Beg fu un sovrano illuminato e astronomo di eccezionale valore; nel suo osservatorio a Samarcanda misurò la posizione di oltre mille stelle con una precisione straordinaria per l'epoca."
+    },
+    { 
+        q: "7. Nella classificazione delle costellazioni tradizionali cinesi, come venivano suddivise le grandi regioni celesti che circondavano il polo nord celeste e l'eclittica?", 
+        opts: [
+            "A) Nelle Tre Enclavi e nei Ventiotto Mansioni (Xiuku)", 
+            "B) Nei Dodici Segni dello Zodiaco Solare", 
+            "C) Nei Quattro Pilastri dei Venti Celesti"
+        ], 
+        correctText: "A) Nelle Tre Enclavi e nei Ventiotto Mansioni (Xiuku)",
+        exp: "<strong>Spiegazione:</strong> Il sistema celeste cinese era strutturato in modo unico rispetto a quello occidentale, dividendo il cielo nelle Tre Enclavi (San Yuan) e in 28 Mansioni lunari (Xiuku) usate per tracciare il moto della Luna."
+    }
+];
+
+// Funzione di utilità per mescolare in modo casuale un array (Fisher-Yates)
+function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+}
+
+const container = document.getElementById("quiz");
+const userSelections = new Array(rawDomande.length).fill(null);
+
+// Elabora le domande randomizzando l'ordine delle opzioni a ogni caricamento
+const domande = rawDomande.map((d, qIdx) => {
+    let optionsList = d.opts.map(opt => ({
+        text: opt,
+        isCorrect: (opt === d.correctText)
+    }));
+    
+    shuffle(optionsList);
+    
+    return {
+        id: qIdx,
+        q: d.q,
+        opts: optionsList,
+        exp: d.exp
+    };
+});
+
+// Renderizza il quiz a schermo
+domande.forEach((d, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+        
+    let html = `<div class="q-title">${d.q}</div>`;
+    d.opts.forEach((optObj, optIdx) => {
+        html += `<button class="opt-btn" id="btn-${i}-${optIdx}" onclick="check(${i}, ${optIdx})">${optObj.text}</button>`;
+    });
+    html += `<div id="fb-${i}" class="feedback"></div>`;
+        
+    card.innerHTML = html;
+    container.appendChild(card);
+});
+
+function toggleRedMode() {
+    document.body.classList.toggle("red-mode");
+}
+
+function check(qIdx, optIdx) {
+    if (userSelections[qIdx] !== null) return;
+    
+    const d = domande[qIdx];
+    const chosenOpt = d.opts[optIdx];
+    userSelections[qIdx] = chosenOpt.isCorrect;
+    
+    const fb = document.getElementById(`fb-${qIdx}`);
+    fb.style.display = "block";
+    
+    let correctOptIdx = d.opts.findIndex(o => o.isCorrect);
+    
+    d.opts.forEach((_, idx) => {
+        const btn = document.getElementById(`btn-${qIdx}-${idx}`);
+        btn.disabled = true;
+        
+        if (idx === optIdx) {
+            btn.style.borderColor = chosenOpt.isCorrect ? 'var(--correct-border)' : 'var(--wrong-border)';
+            btn.style.backgroundColor = chosenOpt.isCorrect ? 'var(--correct-bg)' : 'var(--wrong-bg)';
+        } else if (idx === correctOptIdx) {
+            btn.style.borderColor = 'var(--correct-border)';
+            btn.style.backgroundColor = 'var(--correct-bg)';
+        } else {
+            btn.style.borderColor = 'var(--border-color)';
+            btn.style.backgroundColor = 'var(--btn-bg)';
+        }
+    });
+
+    if (chosenOpt.isCorrect) {
+        fb.className = "feedback correct";
+        fb.innerHTML = `✓ <strong>Esatto!</strong> ${d.exp}`;
+    } else {
+        fb.className = "feedback wrong";
+        fb.innerHTML = `✗ <strong>Errato.</strong> La risposta corretta era: <strong>${d.opts[correctOptIdx].text}</strong>.<br>${d.exp}`;
+    }
+}
+
+function concludiTest() {
+    let score = 0;
+    domande.forEach((d, i) => {
+        if (userSelections[i] === true) {
+            score++;
+        }
+    });
+
+    const resultBox = document.getElementById('result-box');
+    const resultScore = document.getElementById('result-score');
+    const resultEmoji = document.getElementById('result-emoji');
+    const resultMessage = document.getElementById('result-message');
+
+    resultScore.innerText = `Punteggio Finale: ${score} su ${domande.length}`;
+
+    if (score <= 2) {
+        resultEmoji.innerText = "😢";
+        resultMessage.innerText = "Peccato! Rileggi le spiegazioni per ciascun quesito e riprova il test per migliorare!";
+    } else if (score <= 4) {
+        resultEmoji.innerText = "🙂";
+        resultMessage.innerText = "Buon tentativo! Hai una discreta conoscenza di base, puoi fare ancora meglio!";
+    } else if (score <= 6) {
+        resultEmoji.innerText = "😊";
+        resultMessage.innerText = "Molto bene! Dimostri un'ottima preparazione complessiva!";
+    } else {
+        resultEmoji.innerText = "🤩";
+        resultMessage.innerText = "Eccellente! Punteggio pieno, sei un vero esperto di storia dell'astronomia orientale, siriaca e ottomana!";
+    }
+
+    resultBox.classList.add('visible');
+    resultBox.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
